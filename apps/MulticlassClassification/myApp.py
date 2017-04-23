@@ -38,13 +38,6 @@ class MyApp(object):
 
     def getQuery(self, butler, alg, args):
 
-        try:
-            butler.experiment.get(key='test_cache')
-        except:
-            butler.experiment.set(key='test_cache', value=butler.experiment.get(key='args')[''])
-
-
-
         index = alg({'participant_uid': args['participant_uid']})
         target = self.TargetManager.get_target_item(butler.exp_uid, index)
 
@@ -65,6 +58,10 @@ class MyApp(object):
 
         if query['label_mode'] == 'onehot':
             label = label.index(1)
+
+        test_indices = butler.experiment.get(key='args')['test_indices']
+        if query['target_id'] in test_indices:
+            butler.experiment.append(key='test_labels', value=('target_id', label))
 
         alg_args = {'index': query['target_id'], 'label': label}
         alg(alg_args)
