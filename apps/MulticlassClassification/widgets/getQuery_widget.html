@@ -1,0 +1,140 @@
+<style>
+  html,body{
+  height:100%;
+  }
+
+  div.container{
+  height:100%;
+  }
+
+  #wrapper {
+    height:85%;
+  }
+
+  div.row > div.col-xs-6 {
+    height:100%;
+    outline: 1px solid black;
+  }
+
+  div.row > div.col-xs-12 {
+    height:100%;
+    outline: 1px solid black;
+    overflow: scroll;
+  }
+
+  #wrapper > div.row {
+    height:50%;
+  }
+
+  #wrapper img{
+    max-height:100%;
+    max-width:100%;
+    height:auto;
+  }
+
+  .buttonStyle {
+      width:200px;
+      height:62px;
+      background-color: #eeeeee;
+      margin-left: auto;
+      margin-right: auto; 
+      margin-top: 10px;
+      margin-bottom: 10px;
+      font-size: 200%;
+      padding: 10px;
+      text-align: center;
+      outline: 1px solid black;
+  }
+
+ .buttonStyle:hover {
+      background-color: #0ebadd;
+      width:210px;
+      height:64px;
+      padding: 11px;
+        transition:  0.1s ease-in; /* vendorless fallback */
+     -o-transition:  0.1s ease-in; /* opera */
+    -ms-transition:  0.1s ease-in; /* IE 10 betas, not needed in final build. */
+   -moz-transition:  0.1s ease-in; /* Firefox */
+-webkit-transition:  0.1s ease-in; /*safari and chrome */
+}
+
+ .buttonStyle:active {
+      background-color: #0ebadd;
+      outline: 3px solid black;
+ }
+
+</style>
+<br/>
+<div class="row" style="height:50%">
+  <!-- Center Target -->
+  <div class="col-xs-12" id="center" >
+    {% if query.type == "image" or query.type == "img" %}
+    <img class="center-block" src={{ query.data }}></img>
+    {% elif query.type == "text" %}
+    <div>
+      <div>{{ query.data }}</div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<br/>
+
+<div class="row">
+
+  {% for class in query.classes %}
+
+  <div class="buttonStyle" id="target{{ loop.index0 }}" value="0" onclick="toggle(this)">{{ class }}</div>
+
+  {% endfor %}
+
+  {% if query.label_mode == 'multilabel' %}
+
+  <div class="buttonStyle" id="submit" onclick="submit_answer(this)">Submit</div>
+
+  {% endif %}
+
+</div>
+
+<script>
+
+  var num_labels = "{{ query.classes|length }}"
+
+  function toggle(target) {
+      if(target.value=="1") {
+          target.value="0";
+          target.style="outline:1px solid black; background-color:#eeeeee";
+      }
+      else {
+          target.value="1";
+          target.style="outline:3px solid black; background-color:#0ebadd";
+      }
+      if("{{query.label_mode}}" == "onehot") {
+          submit_answer(null)
+      }
+  }
+
+  var get_answer = function() {
+      var answers = []
+      for(i=0; i<num_labels; i++){
+          if(document.getElementById("target" + i).value == "1") {
+              answers[i] = 1;
+          }
+          else {
+              answers[i] = 0;
+          }
+      }
+      return answers
+  }
+
+  var submit_answer = function(submit_button) {
+      if(submit_button != null) {
+          submit_button.style="background-color:#476b6b"
+      }
+      next_widget.processAnswer({"label": get_answer()});
+  }
+
+</script>
+</div>
+

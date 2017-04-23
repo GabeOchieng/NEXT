@@ -1,0 +1,174 @@
+
+{% extends "basic.html" %}
+
+{% block custom_dashboard %}
+
+<div class="container-fluid" style ='padding-bottom: 1cm'>
+    <div class="col-lg-10 col-lg-offset-1">
+        <h2> Test AUC
+            <button type="button" class="btn btn-primary btn-xs"
+                  onclick="popup_alert('The description')">?</button>
+        </h2>
+    </div>
+  <div class="col-lg-10 col-lg-offset-1" style='text-align: center'>
+    <div id="test_auc"></div>
+  </div>
+</div>
+
+<div class="container-fluid" style ='padding-bottom: 1cm'>
+    <div class="col-lg-10 col-lg-offset-1">
+        <h2> Past AUC
+            <button type="button" class="btn btn-primary btn-xs"
+                  onclick="popup_alert('The description')">?</button>
+        </h2>
+    </div>
+  <div class="col-lg-10 col-lg-offset-1" style='text-align: center'>
+    <div id="past_auc"></div>
+  </div>
+</div>
+
+<div class="container-fluid" style ='padding-bottom: 1cm'>
+    <div class="col-lg-10 col-lg-offset-1">
+        <h2> Test Confidence
+            <button type="button" class="btn btn-primary btn-xs"
+                  onclick="popup_alert('The average distance between all samples in the test set and the classifier \
+                   decision boundary. This can be interpreted as the mean confidence of the classifier. \
+                    We expect this to exhibit a rise-peak-fall pattern: \
+                     when the peak is reached, labeling can be stopped.')">?</button>
+        </h2>
+    </div>
+  <div class="col-lg-10 col-lg-offset-1" style='text-align: center'>
+    <div id="test_confidence"></div>
+  </div>
+</div>
+
+
+<div class="container-fluid" style ='padding-bottom: 1cm'>
+    <div class="col-lg-10 col-lg-offset-1">
+        <h2> Prediction Stability
+            <button type="button" class="btn btn-primary btn-xs"
+                  onclick="popup_alert('The description')">?</button>
+        </h2>
+    </div>
+  <div class="col-lg-10 col-lg-offset-1" style='text-align: center'>
+    <div id="proba_stability"></div>
+  </div>
+</div>
+
+
+<script>
+
+
+  proba_stability = function(data) {
+    data['width'] = 800
+    data['height'] = 350
+    mpld3.draw_figure("proba_stability", data)
+  }
+
+  $.ajax({
+    url: "{{ dashboard_url }}/get_stats",
+    type: "POST",
+    contentType: "application/json",
+    data: JSON.stringify({
+        'exp_uid': "{{ exp_uid }}",
+        'args':{
+            'stat_id' : 'proba_stability',
+            'params'  : {},
+            'force_recompute': 1
+            }
+        }),
+    dataType: "json",
+    cache: false
+    }).done( function(data,textStatus, jqXHR) {
+    delete data['meta']
+    proba_stability(data)
+    }).fail(function(error){
+    console.log("Failed to get stats", error);
+    });
+
+
+  past_auc = function(data) {
+    data['width'] = 800
+    data['height'] = 350
+    mpld3.draw_figure("past_auc", data)
+  }
+
+  $.ajax({
+    url: "{{ dashboard_url }}/get_stats",
+    type: "POST",
+    contentType: "application/json",
+    data: JSON.stringify({
+        'exp_uid': "{{ exp_uid }}",
+        'args':{
+            'stat_id' : 'past_auc',
+            'params'  : {},
+            'force_recompute': 1
+            }
+        }),
+    dataType: "json",
+    cache: false
+    }).done( function(data,textStatus, jqXHR) {
+    delete data['meta']
+    past_auc(data)
+    }).fail(function(error){
+    console.log("Failed to get stats", error);
+    });
+
+  test_confidence = function(data) {
+    data['width'] = 800
+    data['height'] = 350
+    mpld3.draw_figure("test_confidence", data)
+  }
+
+  $.ajax({
+    url: "{{ dashboard_url }}/get_stats",
+    type: "POST",
+    contentType: "application/json",
+    data: JSON.stringify({  
+        'exp_uid': "{{ exp_uid }}",
+        'args':{
+            'stat_id' : 'test_confidence',
+            'params'  : {},
+            'force_recompute': 1
+            }
+        }),
+    dataType: "json",
+    cache: false
+    }).done( function(data,textStatus, jqXHR) {
+    delete data['meta']
+    test_confidence(data)
+    }).fail(function(error){
+    console.log("Failed to get stats", error);
+    });
+
+  test_auc = function(data) {
+    data['width'] = 800
+    data['height'] = 350
+    mpld3.draw_figure("test_auc", data)
+  }
+
+  $.ajax({
+    url: "{{ dashboard_url }}/get_stats",
+    type: "POST",
+    contentType: "application/json",
+    data: JSON.stringify({  
+        'exp_uid': "{{ exp_uid }}",
+        'args':{
+            'stat_id' : 'test_auc',
+            'params'  : {},
+            'force_recompute': 1
+            }
+        }),
+    dataType: "json",
+    cache: false
+    }).done( function(data,textStatus, jqXHR) {
+    delete data['meta']
+    test_auc(data)
+    }).fail(function(error){
+    console.log("Failed to get stats", error);
+    });
+
+
+</script>
+
+{% endblock %}

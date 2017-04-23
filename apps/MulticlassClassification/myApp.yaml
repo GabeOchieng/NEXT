@@ -1,0 +1,74 @@
+extends: [base.yaml]
+initExp:
+  args:
+    app_id:
+      values: [MulticlassClassification]
+    args:
+      values:
+        alg_list:
+          values:
+            values:
+              alg_id:
+                description: Supported algorithms for MulticlassClassification.
+                values: [Random, UncertaintySampling]
+                type: str
+                default: [Random]
+        batch_size:
+          description: Number of queries to fetch per algorithm cal
+          type: num
+          default: 10
+        label_mode:
+          description: Defines labeling strategy, `onehot` if a sample can only be a single class, `multilabel` if a sample can be any number of classes (including none or all).
+          type: str
+          values: [onehot, multilabel]
+          default: onehot
+        classes:
+          description: Defines the labels.  The order here will dictate what order the labeling buttons appear in as well as what label corresponds to `0`, `1`, etc.
+          type: list
+          values:
+            type: str
+          default: [Yes, No]
+        instructions:
+          description: Instructions shown to the user when they start labeling.
+          type: str
+          default: These are the default instructions.
+        num_tries:
+          description: The number of queries the participant will answer before seeing the debrief message.
+          type: num
+          default: 100
+        debrief:
+          description: The message shown to the user after they have labeled `num_tries` samples.
+          type: str
+          default: This is the default debrief.
+        participant_to_algorithm_management:
+          type: str
+          default: one_to_many
+        algorithm_management_settings:
+          type: dict
+          default: {}
+          values:
+            mode:
+              description: The strategy for choosing which algorithm's to use for each query. `custom` means it is determined by myApp.chooseAlg().
+              type: str
+              default: custom
+        targets:
+          type: oneof
+          values:
+            source:
+              description: Location of the input data from within the docker container.
+              type: str
+        test_size:
+          description:
+          type: num
+          default: 100
+
+processAnswer:
+  args:
+    args:
+      values:
+        label:
+          description: The label received from the user, as a binary list. E.g. [1, 0, 0] for a three class scenario.
+          type: list
+          values:
+            description: The binary label for each class.
+            type: num

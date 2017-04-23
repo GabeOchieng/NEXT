@@ -1,0 +1,33 @@
+initExp:
+    args:
+        batch_size:
+            type: num
+        train_n:
+            type: num
+        test_n:
+            type: num
+    rets:
+        type: stuff
+
+getQuery:
+    args:
+        participant_uid:
+            type: stuff
+    rets:
+        type: stuff
+
+processAnswer:
+    args:
+        index:
+            type: num
+        label:
+            type: stuff
+        subset:
+            type: str
+            description: The set (test or train) that the labeled target belongs to
+    rets:
+        type: stuff
+
+getModel:
+    rets:
+        type: stuff
