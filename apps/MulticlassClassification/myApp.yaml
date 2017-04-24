@@ -13,10 +13,10 @@ initExp:
                 values: [Random, UncertaintySampling]
                 type: str
                 default: [Random]
-        batch_size:
-          description: Number of queries to fetch per algorithm cal
+        cache_size:
+          description: Number of queries to keep in cache. This should be about equal to how many participants you will have labeled at the same time.
           type: num
-          default: 10
+          default: 2
         label_mode:
           description: Defines labeling strategy, `onehot` if a sample can only be a single class, `multilabel` if a sample can be any number of classes (including none or all).
           type: str

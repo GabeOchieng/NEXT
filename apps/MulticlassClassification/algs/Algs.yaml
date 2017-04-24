@@ -1,10 +1,6 @@
 initExp:
     args:
-        batch_size:
-            type: num
-        train_n:
-            type: num
-        test_n:
+        cache_size:
             type: num
     rets:
         type: stuff
@@ -22,9 +18,6 @@ processAnswer:
             type: num
         label:
             type: stuff
-        subset:
-            type: str
-            description: The set (test or train) that the labeled target belongs to
     rets:
         type: stuff
 

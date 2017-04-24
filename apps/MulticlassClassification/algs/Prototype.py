@@ -13,24 +13,38 @@ class MulticlassClassificationPrototype:
     def __init__(self):
         self.alg_label = 'Prototype'
 
-    def initExp(self, butler, batch_size, n):
+    def initExp(self, butler, cache_size):
         t0 = time.time()
         butler.algorithms.set(key='num_reported_answers', value=0)
-        butler.algorithms.set(key='batch_size', value=batch_size)
-        butler.algorithms.set(key='query_batch', value=[])
+        butler.algorithms.set(key='cache_size', value=cache_size)
+        butler.algorithms.set(key='query_cache', value=[])
         butler.algorithms.set(key='test_accuracy', value=[])
-        butler.algorithms.set(key='n', value=n)
+        butler.algorithms.set(key='labels', value=[])
+        butler.job('getQueryCache', {})
 
         return True
 
     def getQuery(self, butler, participant_uid):
 
         labels = self._get_labels(butler)
-        test_indices = butler.experiment.get(key='args')['test_indices']
+        test_indices = butler.experiment.get(key='test_indices')
         unlabeled_test = [i for i in test_indices if i not in labels]
 
         if unlabeled_test:
             return random.choice(unlabeled_test)
+        else:
+            wait = 0
+            index = None
+            while True:
+                try:
+                    index = butler.algorithms.pop('query_cache')
+                except:
+                    pass
+                if index is not None:
+                    break
+                butler.job('getQueryCache', {})
+                wait += 1
+                time.sleep(wait)
 
     def getQueryCache(self, butler, args):
         raise NotImplementedError
@@ -39,6 +53,12 @@ class MulticlassClassificationPrototype:
 
         # Increment the number of reported answers by one
         num_answers = butler.algorithms.increment(key='num_reported_answers')
+
+        test_indices = butler.experiment.get(key='test_indices')
+        if index in test_indices:
+            butler.experiment.append(key='test_labels', value=(index, label))
+        else:
+            butler.algorithms.append(key='labels', value=(index, label))
 
         return True
 

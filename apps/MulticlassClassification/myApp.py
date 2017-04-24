@@ -24,15 +24,13 @@ class MyApp(object):
 
         n = len(target_set)
 
-        args['test_indices'] = np.random.choice(n, args['test_size'])
+        test_indices = np.random.choice(n, args['test_size'])
+
+        butler.experiment.set(key='test_indices', value=test_indices)
+        butler.experiment.set(key='test_labels', value=[])
 
         # Defaults loaded from myApp.yaml are floats, which can cause errors
-        args['batch_size'] = int(args['batch_size'])
-
-        alg_data = {'batch_size': args['batch_size'],
-                    'n': n}
-
-        init_algs(alg_data)
+        init_algs({'cache_size': int(args['cache_size'])})
 
         return args
 
@@ -48,23 +46,15 @@ class MyApp(object):
         exp_args = butler.experiment.get(key='args')
         target['label_mode'] = exp_args['label_mode']
         target['classes'] = exp_args['classes']
+
         return target
 
     def processAnswer(self, butler, alg, args):
 
         query = butler.queries.get(uid=args['query_uid'])
-        label = args['label']
-        butler.experiment.increment(key='num_reported_answers_for_' + query['alg_label'])
-
-        if query['label_mode'] == 'onehot':
-            label = label.index(1)
-
-        test_indices = butler.experiment.get(key='args')['test_indices']
-        if query['target_id'] in test_indices:
-            butler.experiment.append(key='test_labels', value=('target_id', label))
-
-        alg_args = {'index': query['target_id'], 'label': label}
+        alg_args = {'index': query['target_id'], 'label': args['label']}
         alg(alg_args)
+
         return alg_args 
 
     def getModel(self, butler, alg, args):
