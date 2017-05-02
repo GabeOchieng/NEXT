@@ -2,7 +2,7 @@ import numpy as np
 
 
 class SVM(object):
-    def __init__(self, C=.001, learning_rate=.02, max_iter=100000, tolerance=.1):
+    def __init__(self, C=.001, learning_rate=.05, max_iter=10000, tolerance=.05):
         self.C = C
         self.W = None
         self.learning_rate = learning_rate
@@ -24,6 +24,7 @@ class SVM(object):
             self._iter(X[j], y[j])
             if i % 1000 == 0:
                 this_loss = self._loss(X, y)
+                print(this_loss)
                 if np.abs(this_loss - last_loss) < self.tolerance:
                     break
                 last_loss = this_loss
@@ -58,8 +59,11 @@ class SVM(object):
             self._classes = sorted(list(set(y)))
             y = np.vectorize(lambda x: {self._classes[0]: -1, self._classes[1]: 1}[x])(y)
         if X is not None:
+            X -= np.mean(X, axis=0)
+            stdX = np.std(X, axis=0)
+            stdX[stdX == 0] = 1
+            X /= stdX
             X = np.hstack([np.ones((X.shape[0], 1)), X])
-            X = np.apply_along_axis(lambda x: x / np.linalg.norm(x), 1, X)
 
         return X, y
 
@@ -70,6 +74,7 @@ def test_svm():
     y = np.sign(np.dot(X, W_hat))
     svm = SVM()
     svm.fit(X, y)
+    print(svm.score(X, y))
 
     X = np.random.rand(9, 3) - .5
     W_hat = np.random.rand(3) - .5

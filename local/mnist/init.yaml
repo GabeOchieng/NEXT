@@ -1,0 +1,17 @@
+app_id: MulticlassClassification
+args:
+  alg_list:
+    - {alg_id: Random, alg_label: Random}
+    - {alg_id: UncertaintySampling, alg_label: UncertaintySampling}
+  algorithm_management_settings:
+    mode: fixed_proportions
+    params:
+    - {alg_label: Random, proportion: .5}
+    - {alg_label: UncertaintySampling, proportion: .5}
+  label_mode: onehot
+  targets: '/next_backend/local/mnist/mnist_targets.json'
+  num_tries: 10
+  test_size: 10
+  debrief: You labeled 10 images!
+  instructions: Select which number is displayed.
+  classes: ["1", "2", "3"]

@@ -1,5 +1,6 @@
 from next.apps.AppDashboard import AppDashboard
 from next.utils import debug_print
+from next.apps.Butler import Butler
 import matplotlib.pyplot as plt
 import matplotlib
 from matplotlib import cm
@@ -15,21 +16,7 @@ class MyAppDashboard(AppDashboard):
         AppDashboard.__init__(self, db, ell)
         self.alg_dicts = None
 
-    def proba_stability(self, app, butler):
-        return self.plot_property(butler, app, 'proba_stability', ylabel='Prediction Stability',
-                                  colors=cm.winter, labels=['1% stable', '10% stable', '20% stable', '50% stable'])
-
-    def past_auc(self, app, butler):
-        return self.plot_property(butler, app, 'past_auc', ylabel='Past AUC')
-
-    def test_auc(self, app, butler):
-        return self.plot_property(butler, app, 'test_auc', ylabel='Test AUC')
-
-    def test_confidence(self, app, butler):
-        return self.plot_property(butler, app, 'test_confidence',
-                                  ylabel='Average Decision Boundary Distance on Test Set')
-
-    def plot_property(self, butler, app, prop, ylabel=None, labels=None, colors=None):
+    def plot_accuracy(self, app, butler):
         """
         :rtype: dict
         """
@@ -38,33 +25,21 @@ class MyAppDashboard(AppDashboard):
         plots = None
         # TODO this just takes the last alg's data...
         for alg_dict in alg_dicts:
-            data = alg_dict[prop]
-            debug_print(prop)
-            debug_print(data)
+            data = alg_dict['scores']
             if data:
-                n_labels, data = zip(*data)
-                plots = plt.plot(n_labels, data, lw=3)
+                n, c, acc = zip(*data)
+                plots = plt.plot(n, acc, lw=3)
             else:
                 plot_dict = mpld3.fig_to_dict(plt.gcf())
                 plt.close()
                 return plot_dict
 
-        if labels is None:
-            labels = butler.experiment.get(key='args')['classes']
-
-        if colors is not None:
-            if isinstance(colors, LinearSegmentedColormap):
-                for i, line in enumerate(plots):
-                    c = colors((i + 1.)/(len(plots)+2))
-                    plt.setp(line, color=c)
+        labels = butler.experiment.get(key='args')['classes']
 
         legend = plt.legend(plots, labels, loc='lower right')
 
-        plt.xlabel('Number of train labels', size=14)
-        if ylabel is None:
-            plt.ylabel(prop, size=14)
-        else:
-            plt.ylabel(ylabel, size=14)
+        plt.xlabel('Number of labels', size=14)
+        plt.ylabel('accuracy', size=14)
         plt.grid(color='white', linestyle='solid')
 
         for l in legend.get_texts():

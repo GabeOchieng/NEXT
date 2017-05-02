@@ -5,9 +5,6 @@ from Prototype import MulticlassClassificationPrototype
 from next.utils import debug_print
 
 
-VERBOSE = 1
-
-
 class MyAlg(MulticlassClassificationPrototype):
     def __init__(self):
         self.alg_label = 'Random'
@@ -24,4 +21,4 @@ class MyAlg(MulticlassClassificationPrototype):
         labels = self._get_labels(butler)
         unlabeled = [i for i in xrange(n) if i not in labels]
 
-        butler.algorithms.append('query_cache', value=random.choice(unlabeled))
+        butler.algorithms.append(key='query_cache', value=random.choice(unlabeled))

@@ -27,7 +27,7 @@ initExp:
           type: list
           values:
             type: str
-          default: [Yes, No]
+          default: ["Yes", "No"]
         instructions:
           description: Instructions shown to the user when they start labeling.
           type: str

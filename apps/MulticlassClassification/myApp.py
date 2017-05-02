@@ -1,6 +1,5 @@
 from next.utils import debug_print
 from next.apps.SimpleTargetManager import SimpleTargetManager
-from sklearn.preprocessing import LabelBinarizer
 import numpy as np
 import random
 import time
@@ -14,7 +13,7 @@ class MyApp(object):
 
     def initExp(self, butler, init_algs, args):
 
-        target_set = args['target_set']
+        target_set = args['targets']
 
         if isinstance(target_set, (str, unicode)):
             with open(target_set) as f:
@@ -28,9 +27,9 @@ class MyApp(object):
 
         butler.experiment.set(key='test_indices', value=test_indices)
         butler.experiment.set(key='test_labels', value=[])
+        butler.experiment.set(key='n', value=n)
 
-        # Defaults loaded from myApp.yaml are floats, which can cause errors
-        init_algs({'cache_size': int(args['cache_size'])})
+        init_algs({'cache_size': args['cache_size']})
 
         return args
 
