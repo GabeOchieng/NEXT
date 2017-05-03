@@ -1,6 +1,7 @@
 import yaml
 import random
 import sys
+import billiard
 
 color_ansi = {'yellow': '\x1b[33m',
               'red': '\x1b[31m',
@@ -23,6 +24,30 @@ def get_supported_apps(apps_path='apps/'):
   """
   import os
   return [d for d in next(os.walk(os.path.dirname(apps_path)))[1] if d[0] not in {'.', '_'}]
+
+
+def get_worker_name():
+    process = billiard.current_process()
+    if hasattr(process, 'initargs'):
+        return process.initargs[1]
+    elif 'main' in process.name.lower():
+        return 'main_process'
+    else:
+        return 'unknown_name'
+
+
+def get_worker_type():
+    worker_name = get_worker_name()
+    if 'dashboard' in worker_name:
+        return 'dashboard'
+    elif 'async' in worker_name:
+        return 'async'
+    elif 'sync' in worker_name:
+        return 'sync'
+    elif worker_name == 'main_process':
+        return worker_name
+    else:
+        return 'unknown_type'
 
 
 def get_app(app_id, exp_uid, db, ell):

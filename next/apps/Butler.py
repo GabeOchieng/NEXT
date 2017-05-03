@@ -123,6 +123,11 @@ class Memory(object):
             return None
 
 
+class Namespace(dict):
+    def __setitem__(self, key, value):
+        raise Exception("butler.namespace is read-only")
+
+
 class Collection(object):
     def __init__(self, collection, uid_prefix, exp_uid, db, timing=True):
         self.collection = collection
@@ -257,7 +262,11 @@ class Butler(object):
         self.ell = ell
         self.targets = targets
         self.memory = Memory()
-        
+        if hasattr(db, 'namespace'):
+            self.namespace = db.namespace
+        else:
+            self.namespace = dict()
+
         if self.targets.db is None:
             self.targets.db = self.db
         self.queries = Collection(self.app_id+":queries", "", self.exp_uid, db)

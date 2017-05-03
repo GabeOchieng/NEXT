@@ -16,6 +16,10 @@ import next.utils as utils
 import next.lib.pijemont.verifier as verifier
 import next.constants
 import next.apps.Butler as Butler
+from next.apps.Butler import Namespace
+from billiard import current_process
+import time
+
 
 Butler = Butler.Butler
 git_hash = next.constants.GIT_HASH
@@ -31,6 +35,12 @@ class App(object):
         self.myApp = __import__('apps.'+self.app_id, fromlist=[''])
         self.myApp = getattr(self.myApp, 'MyApp')
         self.myApp = self.myApp(db)
+        self.setupNamespace = getattr(self.myApp, 'setupNamespace', lambda ns: ns)
+        if not hasattr(db, 'namespace'):
+            namespace = self.setupNamespace(dict())
+            if not isinstance(namespace, dict):
+                raise Exception("myApp.setupNamespace must return the namespace object (a dict).")
+            db.namespace = Namespace(namespace)
         self.butler = Butler(self.app_id, self.exp_uid, self.myApp.TargetManager, db, ell)
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),"../../apps"))
         self.reference_dict, app_errs = verifier.load_doc("{}/myApp.yaml".format(app_id), base_dir)
