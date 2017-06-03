@@ -71,7 +71,7 @@ python launch.py twitter/init.yaml
 
 ## Configuring experiments
 
-See https://github.com/dconathan/NEXT/blob/master/apps/MulticlassClassification/myApp.yaml for details on all the configuration options.
+See https://github.com/dconathan/NEXT/blob/multiclass/apps/MulticlassClassification/myApp.yaml for details on all the configuration options.
 But most importantly, you have:
 
 - cache_size: this is how many queries to queue up each iteration of the algorithm. Smaller is better but not too small. Aim for 5-10 depending on how many people you expect to be labeling at the same time.
