@@ -16,30 +16,28 @@ class MyAppDashboard(AppDashboard):
         AppDashboard.__init__(self, db, ell)
         self.alg_dicts = None
 
-    def plot_accuracy(self, app, butler):
-        """
-        :rtype: dict
-        """
+    def plot_precision(self, app, butler):
         plt.figure()
         alg_dicts = self.get_alg_dicts(app, butler)
-        plots = None
         # TODO this just takes the last alg's data...
+
+        classes = butler.experiment.get(key='args')['classes']
+
         for alg_dict in alg_dicts:
-            data = alg_dict['scores']
-            if data:
-                n, c, acc = zip(*data)
-                plots = plt.plot(n, acc, lw=3)
-            else:
-                plot_dict = mpld3.fig_to_dict(plt.gcf())
-                plt.close()
-                return plot_dict
+            for i in range(len(classes)):
+                data = alg_dict['scores_class{}'.format(i)]
+                if data:
+                    n_labeled, score = zip(*data)
+                    plt.plot(n_labeled, score, lw=3, label=classes[i])
+                else:
+                    plot_dict = mpld3.fig_to_dict(plt.gcf())
+                    plt.close()
+                    return plot_dict
 
-        labels = butler.experiment.get(key='args')['classes']
-
-        legend = plt.legend(plots, labels, loc='lower right')
+        legend = plt.legend(loc='lower right')
 
         plt.xlabel('Number of labels', size=14)
-        plt.ylabel('accuracy', size=14)
+        plt.ylabel('average precision', size=14)
         plt.grid(color='white', linestyle='solid')
 
         for l in legend.get_texts():

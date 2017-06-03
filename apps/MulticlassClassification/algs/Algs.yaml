@@ -2,13 +2,12 @@ initExp:
     args:
         cache_size:
             type: num
+        n_classes:
+            type: num
     rets:
         type: stuff
 
 getQuery:
-    args:
-        participant_uid:
-            type: stuff
     rets:
         type: stuff
 

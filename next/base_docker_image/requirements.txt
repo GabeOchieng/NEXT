@@ -11,3 +11,5 @@ mpld3
 pyyaml
 ply
 joblib
+sklearn
+pandas

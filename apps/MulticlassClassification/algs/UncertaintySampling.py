@@ -3,7 +3,7 @@ import random
 import numpy as np
 from Prototype import MulticlassClassificationPrototype
 from next.utils import debug_print
-from ..lib import SVM
+from sklearn.svm import LinearSVC
 
 
 class MyAlg(MulticlassClassificationPrototype):
@@ -12,45 +12,49 @@ class MyAlg(MulticlassClassificationPrototype):
 
     def getQueryCache(self, butler, args):
 
+        lock = butler.algorithms.memory.lock('getting_query_cache')
+        lock.acquire()
+
         # This is in case many jobs get submitted
         cache_size = butler.algorithms.get(key='cache_size')
         if len(butler.algorithms.get(key='query_cache')) >= cache_size:
+            lock.release()
             return
 
-        labels = self._get_labels(butler)
-
+        X = self.get_X(butler)
         test_indices = set(butler.experiment.get(key='test_indices'))
         n = butler.experiment.get(key='n')
 
-        train_indices = [i for i in xrange(n) if i not in test_indices]
+        while len(butler.algorithms.get(key='query_cache')) < cache_size:
 
-        train_labeled = []
-        train_unlabeled = []
+            y_train, _, labeled_train, _ = self.get_y(butler)
 
-        for i in train_indices:
-            if i in labels:
-                train_labeled.append(i)
+            if len(labeled_train) > 1:
+                y_train = random.choice(y_train.T)
             else:
-                train_unlabeled.append(i)
+                y_train = np.array([])  # not enough labeled, set to empty
 
-        X = self._get_X(butler)
-        X_labeled = X[train_labeled]
-        X_unlabeled = X[train_unlabeled]
+            X_train = X[labeled_train]
 
-        exp_args = butler.experiment.get(key='args')
-        label_mode = exp_args['label_mode']
-        classes = exp_args['classes']
+            labeled_train = set(labeled_train)
+            current_cache = set(butler.algorithms.get(key='query_cache'))
 
-        active_class = np.random.choice(len(classes))
+            unlabeled_train = [i for i in range(n) if (i not in labeled_train and
+                                                       i not in test_indices and
+                                                       i not in current_cache)]
 
-        y = self._get_y(butler, labels, train_labeled, active_class)
+            X_unlabeled = X[unlabeled_train]
 
-        svm = SVM().fit(X_labeled, y)
+            if len(set(y_train.tolist())) == 2:
+                svm = LinearSVC(class_weight='balanced').fit(X_train, y_train)
+                scores = svm.decision_function(X_unlabeled)
+                n_to_append = int((cache_size - len(butler.algorithms.get(key='query_cache'))))
+                scores_sorted = np.argsort(np.abs(scores))[:n_to_append]
+                best = np.array(unlabeled_train)[scores_sorted]
+                for b in best:
+                    butler.algorithms.append(key='query_cache', value=b)
+            else:
+                # unsuccessful training, random
+                butler.algorithms.append(key='query_cache', value=random.choice(unlabeled_train))
 
-        if svm:
-            scores = svm.decision_function(X_unlabeled)
-            best = train_unlabeled[np.argmin(np.abs(scores))]
-            butler.algorithms.append(key='query_cache', value=best)
-        else:
-            # unsuccessful training, random
-            butler.algorithms.append(key='query_cache', value=random.choice(train_unlabeled))
+        lock.release()

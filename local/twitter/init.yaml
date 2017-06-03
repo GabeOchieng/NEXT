@@ -1,0 +1,14 @@
+app_id: MulticlassClassification
+args:
+  alg_list:
+    - {alg_id: UncertaintySampling, alg_label: UncertaintySampling}
+  algorithm_management_settings:
+    mode: custom
+  label_mode: multilabel
+  targets: '/next_backend/local/twitter/twitter_targets_sample.json'
+  num_tries: 200
+  test_size: 200
+  cache_size: 5
+  debrief: You labeled 200 tweets, hit refresh to label more!
+  instructions: Label this tweet.
+  classes: ['News', '2nd Amendment', 'Gun Policy', 'Anger/Frustration/Sarcasm', 'Thoughts/Prayers', 'Ambiguous']

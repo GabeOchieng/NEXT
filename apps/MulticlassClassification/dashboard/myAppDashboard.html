@@ -5,23 +5,22 @@
 
 <div class="container-fluid" style ='padding-bottom: 1cm'>
     <div class="col-lg-10 col-lg-offset-1">
-        <h2> Test AUC
+        <h2> Average Precision on Test Set
             <button type="button" class="btn btn-primary btn-xs"
                   onclick="popup_alert('The description')">?</button>
         </h2>
     </div>
   <div class="col-lg-10 col-lg-offset-1" style='text-align: center'>
-      {{ alg_list }}
-    <div id="plot_accuracy"></div>
+    <div id="plot_precision"></div>
   </div>
 </div>
 
 <script>
 
-  plot_accuracy = function(data) {
+  plot_precision = function(data) {
     data['width'] = 800
     data['height'] = 350
-    mpld3.draw_figure("plot_accuracy", data)
+    mpld3.draw_figure("plot_precision", data)
   }
 
   $.ajax({
@@ -31,7 +30,7 @@
     data: JSON.stringify({
         'exp_uid': "{{ exp_uid }}",
         'args':{
-            'stat_id' : 'plot_accuracy',
+            'stat_id' : 'plot_precision',
             'params'  : {},
             'force_recompute': 1
             }
@@ -40,7 +39,7 @@
     cache: false
     }).done( function(data,textStatus, jqXHR) {
     delete data['meta']
-    plot_accuracy(data)
+    plot_precision(data)
     }).fail(function(error){
     console.log("Failed to get stats", error);
     });
