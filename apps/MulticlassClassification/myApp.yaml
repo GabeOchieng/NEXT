@@ -10,9 +10,9 @@ initExp:
             values:
               alg_id:
                 description: Supported algorithms for MulticlassClassification.
-                values: [Random, UncertaintySampling]
+                values: [RandomSampling, UncertaintySampling]
                 type: str
-                default: [Random]
+                default: [UncertaintySampling]
         cache_size:
           description: Number of queries to keep in cache. This should be about equal to how many participants you will have labeling at the same time.
           type: num

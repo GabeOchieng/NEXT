@@ -7,7 +7,7 @@ from next.utils import debug_print
 
 class MyAlg(MulticlassClassificationPrototype):
     def __init__(self):
-        self.alg_label = 'Random'
+        self.alg_label = 'RandomSampling'
 
     def getQueryCache(self, butler, args):
 
